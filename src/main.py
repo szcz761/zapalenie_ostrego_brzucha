@@ -12,18 +12,33 @@ from sklearn import svm
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
+
+def get_matrix_from_vector(data, vector):
+    result = []
+    for row in data:
+        if row[0] in vector
+            result.append(row)
+
+    return result
 def cross_validation(input):
     # input = np.random.permutation(input) #losowe wymieszanie wierszy
-    data = input[:,:31] # dane na podstawie ktorych klayfikujemy (data) - macierz 475x31
-    target = input[:,31] # klasy do ktorych klasyfikujemy (target) - kolumna o indeksie 31
-    train_data, test_data, train_target, test_target = train_test_split(data, target, test_size=0.2) #nastepuje przelosowanie wierszy
-    print(train_data.shape, train_target.shape)
-    print(test_data.shape, test_target.shape)
+    
+    # print(train_data.shape, train_target.shape)
+    # print(test_data.shape, test_target.shape)
 
-    clf = svm.SVC(kernel='linear', C=1)
-    scores = cross_val_score(clf, data, target, cv=10)
-    print(scores)
-    print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+    print("Test KFold")
+    kf = KFold(n_splits=5)  # na ile podzbiorw dzielimy 20% to test gdy jest n_split = 5
+    print(kf)
+    for train, test in kf.split(input): #ZWRACA WEKTORY A NIE MACIERZE!!!!!!!
+        train_data = input[train[0]:train[-1],:31] # dane na podstawie ktorych klayfikujemy (data) - macierz 475x31
+        test_data = input[test[0]:test[-1],:31]
+        train_target = input[train[0]:train[-1]:,31] # klasy do ktorych klasyfikujemy (target) - kolumna o indeksie 31
+        test_target = input[test[0]:test[-1]:,31]
+        clf = svm.SVC(kernel='linear', C=1).fit(train_data, train_target)
+        # scores = cross_val_score(clf, data, target, cv=10)
+        print(clf.score(test_data, test_target))
+        # print(scores)
+    # print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
     # clf = svm.SVC(kernel='linear', C=1).fit(train_data, train_target)
     # print(clf.score(test_data, test_target))
     # y = np.ravel(y)
