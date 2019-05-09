@@ -8,23 +8,22 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def cross_validation(input):
-    input = np.random.permutation(input) #losowe wymieszanie wierszy
+    result_array = np.empty((0,10))
+    print("Cross Validation")
+    for i in range(0,5):
+        input = np.random.permutation(input) #losowe wymieszanie wierszy
+        kf = KFold(n_splits=2,shuffle=False)  # na ile podzbiorw dzielimy 20% to test gdy jest n_split = 5
+        for vector_of_train_index, vector_of_test_index in kf.split(input): #ZWRACA WEKTORY A NIE MACIERZE!!!!!!!
 
-    print("Test KFold")
-    kf = KFold(n_splits=5,shuffle=False)  # na ile podzbiorw dzielimy 20% to test gdy jest n_split = 5
-    print(kf)
-    result_array = np.empty((0,5))
-    for vector_of_train_index, vector_of_test_index in kf.split(input): #ZWRACA WEKTORY A NIE MACIERZE!!!!!!!
+            train_data = input[vector_of_train_index,:31] # dane na podstawie ktorych klayfikujemy (data) - macierz 475x31
+            test_data = input[vector_of_test_index,:31]
+            train_target = input[vector_of_train_index,31] # klasy do ktorych klasyfikujemy (target) - kolumna o indeksie 31
+            test_target = input[vector_of_test_index,31]
 
-        train_data = input[vector_of_train_index,:31] # dane na podstawie ktorych klayfikujemy (data) - macierz 475x31
-        test_data = input[vector_of_test_index,:31]
-        train_target = input[vector_of_train_index,31] # klasy do ktorych klasyfikujemy (target) - kolumna o indeksie 31
-        test_target = input[vector_of_test_index,31]
-
-        clf = svm.SVC(kernel='linear', C=1).fit(train_data, train_target)
-        single_result = clf.score(test_data, test_target)
-        result_array = np.append(result_array,single_result)
-        print(single_result)
+            clf = svm.SVC(kernel='linear', C=1).fit(train_data, train_target)
+            single_result = clf.score(test_data, test_target)
+            result_array = np.append(result_array,single_result)
+    print (result_array)
     print("Srednia:")
     print(np.mean(result_array))
 
