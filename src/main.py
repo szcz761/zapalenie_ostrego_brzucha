@@ -1,47 +1,36 @@
-import pandas as pd
-import xlrd
-import os
-import numpy as np
 from sklearn.model_selection import KFold
-from sklearn.neighbors import NearestCentroid
+from sklearn import svm
+import pandas as pd
+import numpy as np
+import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-def cross_validation(input):
-    index_end_learn = 400
-    #input = np.transpose(input)
-    #input = np.random.permutation(input)
-    lerning_data = input[:index_end_learn,:]
-    print(lerning_data)
-    test_data = input[index_end_learn:,:]
-    print(test_data)
-    # test_data = np.ravel(test_data)
-    # test_data = y.flatten()
-    print('##### lerning_data shape: #####')
-    print(lerning_data.shape)
-    print('##### test_data: #####')
-    print(test_data.shape)
-    kfold = KFold(2, True, 1)
 
-    #Works for y set to size of 31 not 475 yet
+def cross_validation(input, classifier):
+    result_array = np.empty((0,10))
+    print("Cross Validation")
+    for i in range(0,5):
+        input = np.random.permutation(input) #losowe wymieszanie wierszy
+        kf = KFold(n_splits=2,shuffle=False)  # na ile podzbiorw dzielimy 20% to test gdy jest n_split = 5
+        for vector_of_train_index, vector_of_test_index in kf.split(input): #ZWRACA WEKTORY A NIE MACIERZE!!!!!!!
 
-    for train, test in kfold.split(lerning_data):
-        #print('train: %s, test: %s' % (X[train], X[test]))
-        train_X, test_X = X[train], X[test]
-        train_y, test_y = y[train], y[test]
-    return train_X, test_X, train_y, test_y
+            train_data = input[vector_of_train_index,:31] # dane na podstawie ktorych klayfikujemy (data) - macierz 475x31
+            test_data = input[vector_of_test_index,:31]
+            train_target = input[vector_of_train_index,31] # klasy do ktorych klasyfikujemy (target) - kolumna o indeksie 31
+            test_target = input[vector_of_test_index,31]
+
+            clf = classifier.fit(train_data, train_target)
+            single_result = clf.score(test_data, test_target)
+            result_array = np.append(result_array,single_result)
+    print (result_array)
+    print("Srednia:")
+    print(np.mean(result_array))
+
 
 if __name__ == "__main__":
-    df = pd.read_excel(os.path.join(dir_path, '../data/Stany_ostrego_brzucha-dane.xls'), header=0, skipfooter=15, usecols="A:AF")
+    df = pd.read_excel(os.path.join(dir_path, '../data/Stany_ostrego_brzucha-dane.xls'), header=0, skip_footer=15, parse_cols="A:AG")
     print(df)
-    all_items = df.to_numpy()
 
-    train_X, test_X, train_y, test_y = cross_validation(all_items)
-    print('%s %s %s %s'%(train_X.shape, test_X.shape, train_y.shape, test_y.shape))
-    # No iterations for now
-    # we create an instance of Neighbours Classifier and fit the data,
-    # then print the first prediction.
-    clf = NearestCentroid(shrink_threshold=None)
-    clf.fit(train_X, train_y)
-    y_pred = clf.predict(train_X)
-    print(None, np.mean(train_y == y_pred))
+    all_items = df.to_numpy()
+    cross_validation(all_items, svm.SVC(kernel='linear', C=1))
