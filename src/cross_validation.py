@@ -26,3 +26,4 @@ def cross_validation(input, classifier):
     print(result_array)
     print("Srednia:")
     print(np.mean(result_array))
+    return np.mean(result_array)
