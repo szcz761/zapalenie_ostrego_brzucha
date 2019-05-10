@@ -23,7 +23,7 @@ def knn(input):    # input = np.random.permutation(input) #losowe wymieszanie wi
                 cv_scores.append(scores_mean)
             Range = list(range(1,10))
             cv_scores = [x for x in cv_scores]
-            plt.figure(fig)
+            plt.subplot(4,2,fig)
             if p == 1:
                 plt.title("Manhattan distance measurement "+normal_string[string_index])
             if p == 2:
