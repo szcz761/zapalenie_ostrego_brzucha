@@ -4,15 +4,17 @@ from cross_validation import cross_validation
 from sklearn import preprocessing
 import matplotlib.pyplot as plt
 from numpy import int64
+import numpy as np
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def knn(input):    # input = np.random.permutation(input) #losowe wymieszanie wierszy
     outputs = input_normalization(input)
     normal_string = ["without normalization",
-                     "with [0,100] min max norm",
-                     "with mean norm",
-                     "with std norm"]
+                     "with [0,1] min max norm",
+                     "with z-score norm",
+                     "with max absolute norm"]
+
     fig = 1
     string_index = 0
     for item in outputs:
@@ -35,10 +37,18 @@ def knn(input):    # input = np.random.permutation(input) #losowe wymieszanie wi
         string_index+=1
     plt.show()
 
-def input_normalization(input): # wyskalowane dane są rzutowane do int64, póki co strata precyzji
+def input_normalization(input):
+    data = input[:,:-1] # skalowane są tylko dane, nie target
+    target = np.array(input[:,-1]).reshape(475,1) # target przekształcany jest na macierz jednokolumnową
     no_norm = input
-    min_max = preprocessing.MinMaxScaler(feature_range=(0,100)).fit_transform(input).astype(int64)
-    mean = preprocessing.scale(input, with_mean=True).astype(int64)
-    std = preprocessing.scale(input, with_std=True).astype(int64)
-    return no_norm, min_max, mean, std
+    min_max = preprocessing.MinMaxScaler(feature_range=(0,1)).fit_transform(data) # skalowanie min-max
+    z_score = preprocessing.StandardScaler(with_mean=True, with_std=True).fit_transform(data) #
+    max_abs = preprocessing.MaxAbsScaler().fit_transform(data)
+    min_max_out = np.hstack((min_max, target)) # przeskalowane dane są łączone z targetem
+    z_score_out = np.hstack((z_score, target))
+    max_abs_out = np.hstack((max_abs, target))
+    print(target.shape)
+    print("----------")
+    print(min_max.shape)
+    return no_norm, min_max_out, z_score_out, max_abs_out
 
