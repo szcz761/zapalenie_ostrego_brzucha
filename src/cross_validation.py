@@ -35,7 +35,7 @@ def sort_attribute(input, classifier):
         scores_mean = (cross_validation(one_attribute_data, classifier),i)
         cv_scores.append(scores_mean)
     cv_scores = sorted(cv_scores, key = lambda x: x[0],reverse=True)
-    print(cv_scores)
+    # print(cv_scores)
     return cv_scores
 
 # def adding_attribute(input, classifier):
