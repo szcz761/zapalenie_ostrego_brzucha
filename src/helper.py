@@ -1,6 +1,7 @@
 
 import numpy as np
 from sklearn.model_selection import KFold
+from sklearn import preprocessing
 
 
 def cross_validation(input, classifier):
@@ -37,6 +38,21 @@ def sort_attribute(input, classifier):
     cv_scores = sorted(cv_scores, key = lambda x: x[0],reverse=True)
     # print(cv_scores)
     return cv_scores
+
+def input_normalization(input):
+    data = input[:,:-1] # skalowane są tylko dane, nie target
+    target = np.array(input[:,-1]).reshape(475,1) # target przekształcany jest na macierz jednokolumnową
+    no_norm = input
+    min_max = preprocessing.MinMaxScaler(feature_range=(0,1)).fit_transform(data) # skalowanie min-max
+    z_score = preprocessing.StandardScaler(with_mean=True, with_std=True).fit_transform(data) #skalowanie z-score
+    max_abs = preprocessing.MaxAbsScaler().fit_transform(data) #skalowanie max abs, czyli przedziały modułu maksymalnych wartości
+    min_max_out = np.hstack((min_max, target)) # przeskalowane dane są łączone z targetem
+    z_score_out = np.hstack((z_score, target))
+    max_abs_out = np.hstack((max_abs, target))
+    # print(target.shape)
+    # print("----------")
+    # print(min_max.shape)
+    return no_norm, min_max_out, z_score_out, max_abs_out
 
 # def adding_attribute(input, classifier):
 #     cv_scores = []

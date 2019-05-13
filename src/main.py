@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 import os
-from cross_validation import cross_validation
+import helper
 from knn import knn
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
