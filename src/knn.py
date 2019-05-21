@@ -9,28 +9,25 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 def knn(input):    # input = np.random.permutation(input) #losowe wymieszanie wierszy
     outputs = helper.input_normalization(input)
     normal_string = ["without normalization",
-                     "with [0,1] min max norm",
-                     "with z-score norm",
-                     "with max absolute norm"]
+                     "with z-score norm"]
     scores = []
     item_iter = 0
     target = np.array(input[:,-1]).reshape(475,1)                                                      # sortujemy wtórnie cechy znormalizowane według przyjętego jednego formatu klasyfikatora, np. n_neighbours=9, p=1
     sort = np.array(helper.kolmogorov_test(input))
     scores.append(sort)
     print(scores[0][0])
+    classfires=[]
     for item in outputs:
         print("ITEM " +normal_string[item_iter])
         for how_many_attrs in range(1,31):
             cv_scores, data_fill = helper.adding_attribute(how_many_attrs, item, item_iter, scores)
             full_filled = np.hstack((data_fill, target))                        # łączymy macierz cech z targetem
             for p in [1, 2]:
-                for k in range(1, 10):
-                    scores_mean = (helper.cross_validation(full_filled, KNeighborsClassifier(n_neighbors=k, p=p, metric='minkowski')), # wynik uczenia się
-                                                    how_many_attrs,                                                             # dla jakiej liczby cech (od 1 do 31)
-                                                    k,                                                                          # dla określonej liczby sąsiadów ( od 1 9)
-                                                    p)                                                                          # i dla określonej metryki (p=1 = 'Manhattan', p =2 = 'Euclidean')
-                    cv_scores.append(scores_mean)
-            cv_scores = sorted(cv_scores, key = lambda x: x[0],reverse=True)
+                for k in [1,5,7,9]:
+                    classfires = np.append(classfires, KNeighborsClassifier(n_neighbors=k, p=p, metric='minkowski')), # wynik uczenia się
+            
+                    # cv_scores.append(scores_mean)
+            # cv_scores = sorted(cv_scores, key = lambda x: x[0],reverse=True)
             print(cv_scores)
             print(full_filled.shape)
         item_iter+=1
