@@ -90,8 +90,7 @@ def adding_attribute(how_many_attrs, item, item_iter, scores):
     column = np.array(item[:, attribute_index]).reshape(475, 1)
     data_fill = np.array(column)
     for j in range(0, how_many_attrs):
-        attribute_index = np.int(
-            scores[item_iter][j][1])  # iterujemy po cechach o indexie zawartym w tablicy posortowanych cech
+        attribute_index = np.int(scores[item_iter][j][1])  # iterujemy po cechach o indexie zawartym w tablicy posortowanych cech
         column = np.array(item[:, attribute_index]).reshape(475,
                                                             1)  # reshape do macierzy jednokolumnowej, żeby można było stworzyć macierz cech
         # kolejne kolumny o indeksach z posortowanej listy cech dodajemy do macierzy
