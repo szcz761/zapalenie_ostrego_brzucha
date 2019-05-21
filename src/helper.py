@@ -12,7 +12,7 @@ def cross_validation(input, classifiers):
     X, y = input[:, :-1], input[:, -1]
     # X -  dane na podstawie ktorych klayfikujemy - macierz 475x31
     # y -  klasy do ktorych klasyfikujemy (target) - kolumna o indeksie 31
-    print(np.unique(y, return_counts=True))
+    # print(np.unique(y, return_counts=True))
 
     # na ile podzbiorw dzielimy 20% to test gdy jest n_split = 5, KFold Stratyfikowany
     # czyli dzielimy podzbiory jednak w sposób inny niż dla problemu binarnego(more accuracy)
@@ -23,10 +23,10 @@ def cross_validation(input, classifiers):
 
         X_train, X_test = X[train], X[test]
         y_train, y_test = y[train], y[test]
-        result_array_single_classifier=[]
+        result_array_single_classifier = []
         # trening
         for classifier in classifiers:
-            print("classifier: ", classifier)
+
             clf = classifier.fit(X_train, y_train)
             # test
             # if(i % 2 == 0):
@@ -43,16 +43,21 @@ def cross_validation(input, classifiers):
             bac = balanced_accuracy_score(y_test, y_pred)
 
             single_result = clf.score(X_test, y_test)
-            print("SR %.3f | %.3f | bac %.3f" % (
-                single_result, accuracy, bac
+            print("normalizacja: ", type(input[0][0]), 
+                  "ilosc cech: ", np.shape(input)[1],
+                  "n_neighbors: ", classifier.n_neighbors,
+                  "metric: ", classifier.p,
+                  "SR %.3f | %.3f | bac %.3f" % (
+                   single_result, accuracy, bac
             ))
         # exit()
-            result_array_single_classifier = np.append(result_array_single_classifier, single_result)
-        result_array =  np.append(result_array, np.mean(result_array_single_classifier))
+            result_array_single_classifier = np.append(
+                result_array_single_classifier, single_result)
+        # result_array =  np.append(result_array, np.mean(result_array_single_classifier))
 #     print(result_array)
 #     print("Srednia:")
 
-    return result_array
+    # return result_array
 
 
 def kolmogorov_test(input):
@@ -90,7 +95,8 @@ def adding_attribute(how_many_attrs, item, item_iter, scores):
     column = np.array(item[:, attribute_index]).reshape(475, 1)
     data_fill = np.array(column)
     for j in range(0, how_many_attrs):
-        attribute_index = np.int(scores[item_iter][j][1])  # iterujemy po cechach o indexie zawartym w tablicy posortowanych cech
+        # iterujemy po cechach o indexie zawartym w tablicy posortowanych cech
+        attribute_index = np.int(scores[j][1])
         column = np.array(item[:, attribute_index]).reshape(475,
                                                             1)  # reshape do macierzy jednokolumnowej, żeby można było stworzyć macierz cech
         # kolejne kolumny o indeksach z posortowanej listy cech dodajemy do macierzy
