@@ -24,9 +24,9 @@ def cross_validation(input, classifiers):
         X_train, X_test = X[train], X[test]
         y_train, y_test = y[train], y[test]
         result_array_single_classifier = []
-        # trening
-        for classifier in classifiers:
 
+        for classifier in classifiers:
+            # trening
             clf = classifier.fit(X_train, y_train)
             # test
             # if(i % 2 == 0):
