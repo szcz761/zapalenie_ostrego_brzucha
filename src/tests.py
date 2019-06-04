@@ -1,39 +1,42 @@
 import os
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier, NearestCentroid
 import helper
 import matplotlib.pyplot as plt
 import numpy as np
-
+# dodajemy kolejne cechy w walidacji krzyzowej nie na odwrot dla knn gdzie k = 5
+# 1. liczba cech od dokladnosci dla wybranego algorytmu klasyfikacji
+# 2. tabelka, testy dla jedenej wybranej liczby cech dla wszystkich liczb sasiadow
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-def knn(input):    # input = np.random.permutation(input) #losowe wymieszanie wierszy
+def test(input):    # input = np.random.permutation(input) #losowe wymieszanie wierszy
     outputs = helper.input_normalization(input)
+    final = []
     normal_string = ["without normalization",
                      "with z-score norm"]
-    scores = []
     item_iter = 0
-    target = np.array(input[:,-1]).reshape(475,1)                                                      # sortujemy wtórnie cechy znormalizowane według przyjętego jednego formatu klasyfikatora, np. n_neighbours=9, p=1
+    target = np.array(input[:,-1]).reshape(475,1)
     scores = np.array(helper.kolmogorov_test(input))
     # print(scores[0][0])
+
     for item in outputs:
-        # print("ITEM " +normal_string[item_iter])
-        for how_many_attrs in range(1,31):
-            cv_scores, data_fill = helper.adding_attribute(how_many_attrs, item, item_iter, scores)
-            full_filled = np.hstack((data_fill, target))                        # łączymy macierz cech z targetem
-            classifiers = create_lists_KNeighborsClassifiers()
-            helper.cross_validation(full_filled, classifiers)
-            # print(cv_scores)
-            # print(full_filled.shape)
+        for how_many_attrs in range(1,26):#pierwsze 26 najlepszych cech
+            data_fill = helper.adding_attribute(how_many_attrs, item, scores)
+            full_filled = np.hstack((data_fill, target))
         item_iter+=1
+        final.append(full_filled)
 
-def create_lists_KNeighborsClassifiers():
+    for item in final:
+        helper.cross_validation(item, add_to_list_Classifiers())
+
+def add_to_list_Classifiers():
     classifiers=[]
-    for p in [1, 2]:
+    metrics = ["euclidean",
+               "manhattan"]
+    for metric in metrics:
         for k in [1,5,7,9]:
-            classifiers = np.append(classifiers, KNeighborsClassifier(n_neighbors=k, p=p, metric='minkowski'))
+            classifiers = np.append(classifiers, KNeighborsClassifier(n_neighbors=k, metric=metric))
+        classifiers = np.append(classifiers, NearestCentroid(metric=metric))
     return classifiers
-
-
 
 
 
@@ -41,7 +44,7 @@ def k_choice(input):
     fig = 1
     string_index = 0
     k_chosen = []
-    k_final = []
+    normal_string = []
     scores = []
     for p in [1, 2]:
         cv_scores = []

@@ -43,13 +43,15 @@ def cross_validation(input, classifiers):
             bac = balanced_accuracy_score(y_test, y_pred)
 
             single_result = clf.score(X_test, y_test)
-            print("normalizacja: ", type(input[0][0]), 
+
+            print("normalizacja: ", type(input[0][0]),
                   "ilosc cech: ", np.shape(input)[1],
-                  "n_neighbors: ", classifier.n_neighbors,
-                  "metric: ", classifier.p,
+                  "klasyfikator: ", classifier,
+                  "metric: ", classifier.metric,
                   "SR %.3f | %.3f | bac %.3f" % (
                    single_result, accuracy, bac
             ))
+
         # exit()
             result_array_single_classifier = np.append(
                 result_array_single_classifier, single_result)
@@ -62,15 +64,15 @@ def cross_validation(input, classifiers):
 
 def kolmogorov_test(input):
     cv_scores = []
-    target = np.array(input[:, -1])
+    y = np.array(input[:, -1])
     for i in range(0, 30):
         one_attribute_data = input[:, i]
         # wykonujemy test kolgomorowa dla każdej cechy względem klas
         # co outputuje zależność statystyczną jednego obiektu od drugiego
-        scores_mean = (stats.ks_2samp(target, one_attribute_data), i)
+        scores_mean = (stats.ks_2samp(y, one_attribute_data), i)
         cv_scores.append(scores_mean)
     cv_scores = sorted(cv_scores, key=lambda x: x[0], reverse=True)
-    print(cv_scores)
+    #print(cv_scores)
     return cv_scores
 
 
@@ -89,8 +91,7 @@ def input_normalization(input):
     return no_norm, z_score_out
 
 
-def adding_attribute(how_many_attrs, item, item_iter, scores):
-    cv_scores = []  # zerujemy wszystko
+def adding_attribute(how_many_attrs, item, scores):
     attribute_index = 0
     column = np.array(item[:, attribute_index]).reshape(475, 1)
     data_fill = np.array(column)
@@ -102,4 +103,4 @@ def adding_attribute(how_many_attrs, item, item_iter, scores):
         # kolejne kolumny o indeksach z posortowanej listy cech dodajemy do macierzy
         # dodajemy kolumnę do macierzy cech
         data_fill = np.hstack((data_fill, column))
-    return cv_scores, data_fill
+    return data_fill

@@ -1,0 +1,60 @@
+[[Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  0]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  14]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  15]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  16]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  17]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  18]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  23]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  24]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  26]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  27]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  28]
+ [Ks_2sampResult(statistic=0.6694736842105263, pvalue=2.0470254516257393e-94)
+  29]
+ [Ks_2sampResult(statistic=0.608421052631579, pvalue=4.701833753717674e-78)
+  4]
+ [Ks_2sampResult(statistic=0.608421052631579, pvalue=4.701833753717674e-78)
+  6]
+ [Ks_2sampResult(statistic=0.608421052631579, pvalue=4.701833753717674e-78)
+  7]
+ [Ks_2sampResult(statistic=0.608421052631579, pvalue=4.701833753717674e-78)
+  9]
+ [Ks_2sampResult(statistic=0.608421052631579, pvalue=4.701833753717674e-78)
+  11]
+ [Ks_2sampResult(statistic=0.608421052631579, pvalue=4.701833753717674e-78)
+  12]
+ [Ks_2sampResult(statistic=0.608421052631579, pvalue=4.701833753717674e-78)
+  13]
+ [Ks_2sampResult(statistic=0.608421052631579, pvalue=4.701833753717674e-78)
+  19]
+ [Ks_2sampResult(statistic=0.608421052631579, pvalue=4.701833753717674e-78)
+  20]
+ [Ks_2sampResult(statistic=0.5494736842105263, pvalue=9.678955237042551e-64)
+  5]
+ [Ks_2sampResult(statistic=0.5494736842105263, pvalue=9.678955237042551e-64)
+  8]
+ [Ks_2sampResult(statistic=0.5494736842105263, pvalue=9.678955237042551e-64)
+  10]
+ [Ks_2sampResult(statistic=0.4336842105263158, pvalue=7.2244333445218305e-40)
+  1]
+ [Ks_2sampResult(statistic=0.36631578947368426, pvalue=1.4485731588874801e-28)
+  21]
+ [Ks_2sampResult(statistic=0.3515789473684211, pvalue=2.3963068079999434e-26)
+  3]
+ [Ks_2sampResult(statistic=0.3263157894736842, pvalue=9.352873339054137e-23)
+  25]
+ [Ks_2sampResult(statistic=0.26315789473684215, pvalue=6.0026369557855546e-15)
+  2]
+ [Ks_2sampResult(statistic=0.25684210526315787, pvalue=2.931338887864911e-14)
+  22]]
