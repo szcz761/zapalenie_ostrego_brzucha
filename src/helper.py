@@ -65,7 +65,7 @@ def kolmogorov_test(input):
         scores_mean = (stats.ks_2samp(target, one_attribute_data), i)
         cv_scores.append(scores_mean)
     cv_scores = sorted(cv_scores, key=lambda x: x[0], reverse=True)
-    print(cv_scores)
+    print(*cv_scores, sep='\n')
     return cv_scores
 
 
