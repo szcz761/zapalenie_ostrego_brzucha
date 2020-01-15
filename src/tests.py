@@ -9,6 +9,9 @@ import numpy as np
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def test(input):    # input = np.random.permutation(input) #losowe wymieszanie wierszy
+    # helper.PCA_test(input)
+    # calculate_and_plot_feature_selection_score(input, helper.PCA_test, "Pearson test")
+    calculate_and_plot_feature_selection_score(input, helper.PCA_test, "PCA test")
     calculate_and_plot_feature_selection_score(input, helper.pearson_test, "Pearson test")
     calculate_and_plot_feature_selection_score(input, helper.kolmogorov_test, "Kolmogorov test")
     plt.show()
@@ -16,24 +19,21 @@ def test(input):    # input = np.random.permutation(input) #losowe wymieszanie w
 def calculate_and_plot_feature_selection_score(input, selection, name):
     outputs = helper.input_normalization(input)
     fig = plt.figure()
+    labels = ["brak normalizacji","normalizacja"]
+    i=0
     for item in outputs: #normalizacja i brak
-        target = np.array(item[:,-1]).reshape(475,1)
-        scores = np.array(selection(item))
         final = []
         final_2 = []
+
         for how_many_attrs in range(1,32):#pierwsze 30 najlepszych cech
-            for attrs_iter in range(-1,how_many_attrs):
-                data_fill = helper.adding_attribute(attrs_iter, item, scores)
-                full_filled = np.hstack((data_fill, target))
-            final.append(full_filled)
+            final.append(selection(item,how_many_attrs))
+
         for item in final:
             final_2.append(helper.cross_validation(item, [KNeighborsClassifier(n_neighbors=5, metric="euclidean")]))
-        if type(item[0][0]) == np.float64:
-            label = "normaalizacja"
-        else:
-            label = "normaalizacja brak"
+
         print(final_2)
-        plt.plot(np.arange(1, 32, 1), final_2, label=label)
+        plt.plot(np.arange(1, 32, 1), final_2, label=labels[i])
+        i+=1
 
     plt.title(name+ " feature for knn 5 neighbors euclidean")
     plt.legend()

@@ -2,22 +2,21 @@ import numpy as np
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
+from sklearn.decomposition import PCA
 from scipy import stats
 
 
 def cross_validation(input, classifiers):
     result_array = np.empty((0, 10))
-#     print("Cross Validation")
-
+    # print("Cross Validation")
     X, y = input[:, :-1], input[:, -1]
     # X -  dane na podstawie ktorych klayfikujemy - macierz 475x31
     # y -  klasy do ktorych klasyfikujemy (target) - kolumna o indeksie 31
-    # print(np.unique(y, return_counts=True))s
+    # print(np.unique(y, return_counts=True))
 
     # na ile podzbiorw dzielimy 10% to test gdy jest n_split = 10, KFold Stratyfikowany
     # czyli dzielimy podzbiory jednak w sposob inny niz dla problemu binarnego(more accuracy)
-    kf = StratifiedKFold(n_splits=10, shuffle=True)
-    # ZWRACA WEKTORY A NIE MACIERZE!!!!!!!
+    kf = StratifiedKFold(n_splits=10, shuffle=True) # ZWRACA WEKTORY A NIE MACIERZE!!!!!!!
     i=1
     result_array_single_classifier = []
     for train, test in kf.split(X, y):
@@ -27,9 +26,7 @@ def cross_validation(input, classifiers):
         result_array = []
         
         for classifier in classifiers:
-    
             clf = classifier.fit(X_train, y_train)
-
             y_pred = clf.predict(X_test)
             accuracy = accuracy_score(y_test, y_pred)
             # gdy mamy wiecej klas niz 2 i nie jest zbalansowane np klasa a ma 123o obiekty a klasa b ma 12 obiektw
@@ -44,7 +41,6 @@ def cross_validation(input, classifiers):
                   "SR %.3f | %.3f | bac %.3f" % (
                    single_result, accuracy, bac
             ))
-        # exit()
             result_array_single_classifier = np.append(result_array_single_classifier, single_result)
             if(i%10) == 0:
                 print("New data:==================================================================")
@@ -53,38 +49,48 @@ def cross_validation(input, classifiers):
                 result_array =  np.append(result_array, np.mean(result_array_single_classifier,dtype=np.float64))
                 result_array_single_classifier = []
             i=i+1
-#     print(result_array)
-#     print("Srednia:")
 
     return result_array
 
 
+def create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores):
+    target = np.array(input[:,-1]).reshape(475,1)
+    for attrs_iter in range(-1,how_many_attrs):
+        data_fill = adding_attribute(attrs_iter, input, cv_scores)
+    return np.hstack((data_fill, target))
 
-def kolmogorov_test(input):
+def kolmogorov_test(input,how_many_attrs):
     cv_scores = []
     y = np.array(input[:, -1])
     for i in range(0, 30):
         one_attribute_data = input[:, i]
-        # wykonujemy test kolgomorowa dla kazdej cechy wzgledem klas
-        # co outputuje zaleznosc statystyczna jednego obiektu od drugiego
         scores_mean = (stats.ks_2samp(y, one_attribute_data), i)
         cv_scores.append(scores_mean)
-    cv_scores = sorted(cv_scores, key=lambda x: x[0], reverse=False) #true or fale ?? 
-    print(cv_scores)
-    return cv_scores
+    cv_scores = sorted(cv_scores, key=lambda x: x[0], reverse=False) #true or fale ??
 
-def pearson_test(input):
+    return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
+
+def pearson_test(input,how_many_attrs):
     cv_scores = []
     y = np.array(input[:, -1])
     for i in range(0, 30):
         one_attribute_data = input[:, i]
-        # wykonujemy test kolgomorowa dla kazdej cechy wzgledem klas
-        # co outputuje zaleznosc statystyczna jednego obiektu od drugiego
-        scores_mean = (np.corrcoef(y, one_attribute_data)[0,1], i)
+        scores_mean = (np.abs(np.corrcoef(y, one_attribute_data)[0,1]), i)
         cv_scores.append(scores_mean)
-    cv_scores = sorted(cv_scores, key=lambda x: x[0], reverse=False)
-    print(cv_scores)
-    return cv_scores
+    cv_scores = sorted(cv_scores, key=lambda x: x[0], reverse=True)
+
+    return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
+
+def PCA_test(input,how_many_attrs):
+    x = np.array(input[:, :-1])
+    target = np.array(input[:,-1]).reshape(475,1)
+    pca = PCA(n_components=how_many_attrs)
+    principalComponents = pca.fit_transform(x)
+    # principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
+    print(principalComponents)
+
+    return np.hstack((principalComponents, target))
+
 
 
 def input_normalization(input):
