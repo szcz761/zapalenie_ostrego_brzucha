@@ -1,5 +1,5 @@
 import os
-from sklearn.neighbors import KNeighborsClassifier, NearestCentroid
+from sklearn.neighbors import KNeighborsClassifier
 import helper
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,15 +8,17 @@ import numpy as np
 # 2. tabelka, testy dla jedenej wybranej liczby cech dla wszystkich liczb sasiadow
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-def test(input):    # input = np.random.permutation(input) #losowe wymieszanie wierszy
-    # helper.PCA_test(input)
-    # calculate_and_plot_feature_selection_score(input, helper.PCA_test, "Pearson test")
+def test(input):
+    calculate_and_plot_feature_selection_score(input, helper.nana, "Sequential Feature Selector test")
+    calculate_and_plot_feature_selection_score(input, helper.wraper_test, "Wraper test")
     calculate_and_plot_feature_selection_score(input, helper.PCA_test, "PCA test")
     calculate_and_plot_feature_selection_score(input, helper.pearson_test, "Pearson test")
     calculate_and_plot_feature_selection_score(input, helper.kolmogorov_test, "Kolmogorov test")
     plt.show()
     
 def calculate_and_plot_feature_selection_score(input, selection, name):
+    features = np.arange(1, 32, 1)
+
     outputs = helper.input_normalization(input)
     fig = plt.figure()
     labels = ["brak normalizacji","normalizacja"]
@@ -24,21 +26,21 @@ def calculate_and_plot_feature_selection_score(input, selection, name):
     for item in outputs: #normalizacja i brak
         final = []
         final_2 = []
-
-        for how_many_attrs in range(1,32):#pierwsze 30 najlepszych cech
-            final.append(selection(item,how_many_attrs))
+        cv_scores=[]
+        for how_many_attrs in features:#range(1,32):#pierwsze 30 najlepszych cech
+            final.append(selection(item,how_many_attrs,cv_scores))
 
         for item in final:
-            final_2.append(helper.cross_validation(item, [KNeighborsClassifier(n_neighbors=5, metric="euclidean")]))
+            final_2.append(helper.cross_validation(item, [KNeighborsClassifier(n_neighbors=5)]))
 
         print(final_2)
-        plt.plot(np.arange(1, 32, 1), final_2, label=labels[i])
+        plt.plot(features, final_2, label=labels[i])
         i+=1
 
-    plt.title(name+ " feature for knn 5 neighbors euclidean")
+    plt.title(name+ " feature for knn 5 neighbors")
     plt.legend()
     ax = fig.gca()
-    ax.set_xticks(np.arange(1, 32, 1))
+    ax.set_xticks(features)
     ax.set_yticks(np.arange(0, 1., 0.1))
     plt.grid()
    

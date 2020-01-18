@@ -3,7 +3,9 @@ from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
 from sklearn.decomposition import PCA
+from sklearn.neighbors import KNeighborsClassifier
 from scipy import stats
+from mlxtend.feature_selection import SequentialFeatureSelector
 
 
 def cross_validation(input, classifiers):
@@ -34,18 +36,18 @@ def cross_validation(input, classifiers):
 
             single_result = clf.score(X_test, y_test)
 
-            print("normalizacja: ", type(input[0][0]),
-                  "ilosc cech: ", np.shape(X)[1],
-                  "klasyfikator: ", classifier,
-                  "metric: ", classifier.metric,
-                  "SR %.3f | %.3f | bac %.3f" % (
-                   single_result, accuracy, bac
-            ))
+            # print("normalizacja: ", type(input[0][0]),
+            #       "ilosc cech: ", np.shape(X)[1],
+            #       "klasyfikator: ", classifier,
+            #       "metric: ", classifier.metric,
+            #       "SR %.3f | %.3f | bac %.3f" % (
+            #        single_result, accuracy, bac
+            # ))
             result_array_single_classifier = np.append(result_array_single_classifier, single_result)
             if(i%10) == 0:
-                print("New data:==================================================================")
-                print(np.mean(result_array_single_classifier,dtype=np.float64))
-                print("New data:==================================================================")
+                # print("New data:==================================================================")
+                # print(np.mean(result_array_single_classifier,dtype=np.float64))
+                # print("New data:==================================================================")
                 result_array =  np.append(result_array, np.mean(result_array_single_classifier,dtype=np.float64))
                 result_array_single_classifier = []
             i=i+1
@@ -59,8 +61,10 @@ def create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
         data_fill = adding_attribute(attrs_iter, input, cv_scores)
     return np.hstack((data_fill, target))
 
-def kolmogorov_test(input,how_many_attrs):
-    cv_scores = []
+def kolmogorov_test(input,how_many_attrs, cv_scores):
+    if(cv_scores != []):
+        return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
+
     y = np.array(input[:, -1])
     for i in range(0, 30):
         one_attribute_data = input[:, i]
@@ -70,8 +74,24 @@ def kolmogorov_test(input,how_many_attrs):
 
     return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
 
-def pearson_test(input,how_many_attrs):
-    cv_scores = []
+
+def wraper_test(input, how_many_attrs, cv_scores):
+    if(cv_scores != []):
+        return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
+
+    y = np.array(input[:, -1])
+    for i in range(0, 30):
+        one_attribute_data = input[:, [i,-1]]
+        # one_attribute_data_with_y = np.hstack((one_attribute_data, y))
+        scores_mean = (cross_validation(one_attribute_data, [KNeighborsClassifier(n_neighbors=5, metric="euclidean")]),i)
+        cv_scores.append(scores_mean)
+    cv_scores = sorted(cv_scores, key=lambda x: x[0], reverse=False) #true or fale ??
+
+    return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
+
+def pearson_test(input,how_many_attrs, cv_scores):
+    if(cv_scores != []):
+        return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
     y = np.array(input[:, -1])
     for i in range(0, 30):
         one_attribute_data = input[:, i]
@@ -81,17 +101,31 @@ def pearson_test(input,how_many_attrs):
 
     return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
 
-def PCA_test(input,how_many_attrs):
+def PCA_test(input,how_many_attrs, cv_scores):
     x = np.array(input[:, :-1])
     target = np.array(input[:,-1]).reshape(475,1)
     pca = PCA(n_components=how_many_attrs)
     principalComponents = pca.fit_transform(x)
     # principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
-    print(principalComponents)
+    # print(principalComponents)
 
     return np.hstack((principalComponents, target))
 
-
+def nana(input,how_many_attrs, cv_scores):
+    y = np.array(input[:, -1])
+    x = np.array(input[:, :-1])
+    sfs = SequentialFeatureSelector(KNeighborsClassifier(n_neighbors=5, metric="euclidean"), 
+               k_features=how_many_attrs, 
+               forward=True, 
+               floating=False, 
+               verbose=0,
+               scoring='accuracy',
+               n_jobs=-1,
+               cv=4)
+    sfs = sfs.fit(x, y)
+    print(sfs.k_feature_idx_)
+    target = np.array(input[:,-1]).reshape(475,1)
+    return np.hstack((input[:,sfs.k_feature_idx_],target))
 
 def input_normalization(input):
     data = input[:, :-1]  # skalowane sa tylko dane, nie target
