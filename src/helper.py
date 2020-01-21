@@ -6,6 +6,7 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from scipy import stats
 from mlxtend.feature_selection import SequentialFeatureSelector
+import random
 
 
 def cross_validation(input, classifiers):
@@ -54,12 +55,20 @@ def cross_validation(input, classifiers):
 
     return result_array
 
-
 def create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores):
     target = np.array(input[:,-1]).reshape(475,1)
     for attrs_iter in range(-1,how_many_attrs):
         data_fill = adding_attribute(attrs_iter, input, cv_scores)
     return np.hstack((data_fill, target))
+
+def random_test(input,how_many_attrs, cv_scores):
+    random_index = []
+    y = np.array(input[:, -1])
+    for i in range(0, how_many_attrs):
+        random_index.append(random.randint(0, 30))
+
+    target = np.array(input[:,-1]).reshape(475,1)
+    return np.hstack((input[:,random_index],target))
 
 def kolmogorov_test(input,how_many_attrs, cv_scores):
     if(cv_scores != []):
@@ -111,7 +120,7 @@ def PCA_test(input,how_many_attrs, cv_scores):
 
     return np.hstack((principalComponents, target))
 
-def nana(input,how_many_attrs, cv_scores):
+def SFS_test(input,how_many_attrs, cv_scores):
     y = np.array(input[:, -1])
     x = np.array(input[:, :-1])
     sfs = SequentialFeatureSelector(KNeighborsClassifier(n_neighbors=5, metric="euclidean"), 
@@ -123,7 +132,7 @@ def nana(input,how_many_attrs, cv_scores):
                n_jobs=-1,
                cv=4)
     sfs = sfs.fit(x, y)
-    print(sfs.k_feature_idx_)
+    # print(sfs.k_feature_idx_)
     target = np.array(input[:,-1]).reshape(475,1)
     return np.hstack((input[:,sfs.k_feature_idx_],target))
 
