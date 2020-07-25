@@ -8,6 +8,10 @@ from scipy import stats
 from mlxtend.feature_selection import SequentialFeatureSelector
 import random
 
+# # a=43 
+# a=30
+# # count =164
+# count =475
 
 def cross_validation(input, classifiers):
     result_array = np.empty((0, 10))
@@ -56,7 +60,7 @@ def cross_validation(input, classifiers):
     return result_array
 
 def create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores):
-    target = np.array(input[:,-1]).reshape(475,1)
+    target = np.array(input[:,-1]).reshape(count,1)
     for attrs_iter in range(-1,how_many_attrs):
         data_fill = adding_attribute(attrs_iter, input, cv_scores)
     return np.hstack((data_fill, target))
@@ -65,9 +69,9 @@ def random_test(input,how_many_attrs, cv_scores):
     random_index = []
     y = np.array(input[:, -1])
     for i in range(0, how_many_attrs):
-        random_index.append(random.randint(0, 30))
+        random_index.append(random.randint(0, a))
 
-    target = np.array(input[:,-1]).reshape(475,1)
+    target = np.array(input[:,-1]).reshape(count,1)
     return np.hstack((input[:,random_index],target))
 
 def kolmogorov_test(input,how_many_attrs, cv_scores):
@@ -75,7 +79,7 @@ def kolmogorov_test(input,how_many_attrs, cv_scores):
         return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
 
     y = np.array(input[:, -1])
-    for i in range(0, 30):
+    for i in range(0, a):
         one_attribute_data = input[:, i]
         scores_mean = (stats.ks_2samp(y, one_attribute_data), i)
         cv_scores.append(scores_mean)
@@ -89,7 +93,7 @@ def wraper_test(input, how_many_attrs, cv_scores):
         return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
 
     y = np.array(input[:, -1])
-    for i in range(0, 30):
+    for i in range(0, a):
         one_attribute_data = input[:, [i,-1]]
         # one_attribute_data_with_y = np.hstack((one_attribute_data, y))
         scores_mean = (cross_validation(one_attribute_data, [KNeighborsClassifier(n_neighbors=5, metric="euclidean")]),i)
@@ -102,7 +106,7 @@ def pearson_test(input,how_many_attrs, cv_scores):
     if(cv_scores != []):
         return create_lower_dimention_matrix_from_filters(input, how_many_attrs, cv_scores)
     y = np.array(input[:, -1])
-    for i in range(0, 30):
+    for i in range(0, a):
         one_attribute_data = input[:, i]
         scores_mean = (np.abs(np.corrcoef(y, one_attribute_data)[0,1]), i)
         cv_scores.append(scores_mean)
@@ -112,7 +116,7 @@ def pearson_test(input,how_many_attrs, cv_scores):
 
 def PCA_test(input,how_many_attrs, cv_scores):
     x = np.array(input[:, :-1])
-    target = np.array(input[:,-1]).reshape(475,1)
+    target = np.array(input[:,-1]).reshape(count,1)
     pca = PCA(n_components=how_many_attrs)
     principalComponents = pca.fit_transform(x)
     # principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
@@ -123,6 +127,7 @@ def PCA_test(input,how_many_attrs, cv_scores):
 def SFS_test(input,how_many_attrs, cv_scores):
     y = np.array(input[:, -1])
     x = np.array(input[:, :-1])
+    # print(how_many_attrs)
     sfs = SequentialFeatureSelector(KNeighborsClassifier(n_neighbors=5, metric="euclidean"), 
                k_features=how_many_attrs, 
                forward=True, 
@@ -133,13 +138,18 @@ def SFS_test(input,how_many_attrs, cv_scores):
                cv=4)
     sfs = sfs.fit(x, y)
     # print(sfs.k_feature_idx_)
-    target = np.array(input[:,-1]).reshape(475,1)
+    target = np.array(input[:,-1]).reshape(count,1)
     return np.hstack((input[:,sfs.k_feature_idx_],target))
 
-def input_normalization(input):
+def input_normalization(input, a_, count_):
+    global a
+    global count
+    a=a_
+    count=count_
     data = input[:, :-1]  # skalowane sa tylko dane, nie target
     # target przeksztalcany jest na macierz jednokolumnowa
-    target = np.array(input[:, -1]).reshape(475, 1)
+    target = np.array(input[:, -1]).reshape(count, 1)
+    # target = np.array(input[:, -1]).reshape(, 1)
     no_norm = input
     z_score = preprocessing.StandardScaler(
         with_mean=True, with_std=True).fit_transform(data)  # skalowanie z-score
@@ -153,12 +163,13 @@ def input_normalization(input):
 
 def adding_attribute(how_many_attrs, item, scores):
     attribute_index = 0
-    column = np.array(item[:, attribute_index]).reshape(475, 1)
+    column = np.array(item[:, attribute_index]).reshape(count, 1)
     data_fill = np.array(column)
     for j in range(0, how_many_attrs):
         # iterujemy po cechach o indexie zawartym w tablicy posortowanych cech
+        # print(j)
         attribute_index = np.int(scores[j][1])
-        column = np.array(item[:, attribute_index]).reshape(475,
+        column = np.array(item[:, attribute_index]).reshape(count,
                                                             1)  # reshape do macierzy jednokolumnowej, zeby mozna bylo stworzyc macierz cech
         # kolejne kolumny o indeksach z posortowanej listy cech dodajemy do macierzy
         # dodajemy kolumne do macierzy cech

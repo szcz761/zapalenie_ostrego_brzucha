@@ -4,41 +4,92 @@ import helper
 import matplotlib.pyplot as plt
 from  scipy.stats import wilcoxon
 import numpy as np
+import time
 # dodajemy kolejne cechy w walidacji krzyzowej nie na odwrot dla knn gdzie k = 5
 # 1. liczba cech od dokladnosci dla wybranego algorytmu klasyfikacji
 # 2. tabelka, testy dla jedenej wybranej liczby cech dla wszystkich liczb sasiadow
 dir_path = os.path.dirname(os.path.realpath(__file__))
 all_scores=[]
-# features = np.arange(1, 32, 1)
-features = [5,10,20,30]
+# features = np.arange(5, 32, 1)
+# features =[]
+# features = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+# features = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43]
 
-def test(input):
-    calculate_and_plot_feature_selection_score(input, helper.random_test, "Random feature selection")
-    calculate_and_plot_feature_selection_score(input, helper.SFS_test, "Sequential Feature Selector test")
+def test(input,f,a_, count_):
+    global features 
+    global a
+    global count
+    a=a_
+    count=count_
+    features = f
+    start = time.time()
+    calculate_and_plot_feature_selection_score(input, helper.random_test, "Losowe odrzucenie cech")
+    end = time.time()
+    print("RAND: ",end - start)
+
+    start = time.time()
+    calculate_and_plot_feature_selection_score(input, helper.SFS_test, "SFS test")
+    end = time.time()
+    print("SFS: ",end - start)
+
+    start = time.time()
     calculate_and_plot_feature_selection_score(input, helper.wraper_test, "Wraper test")
-    calculate_and_plot_feature_selection_score(input, helper.PCA_test, "PCA test")
-    calculate_and_plot_feature_selection_score(input, helper.pearson_test, "Pearson test")
-    calculate_and_plot_feature_selection_score(input, helper.kolmogorov_test, "Kolmogorov test")
+    end = time.time()
+    print("WRAPER: ",end - start)
 
-    wilcoxon_for_arrays(all_scores[0],all_scores[2] ,"Random brak normalizcji and Sequential Feature Selector brak normalizcji")
-    wilcoxon_for_arrays(all_scores[0],all_scores[4] ,"Random brak normalizcji and Wraper brak normalizcji")
-    wilcoxon_for_arrays(all_scores[0],all_scores[6] ,"Random brak normalizcji and PCA brak normalizcji")
-    wilcoxon_for_arrays(all_scores[0],all_scores[8] ,"Random brak normalizcji and Pearson brak normalizcji")
-    wilcoxon_for_arrays(all_scores[0],all_scores[10] ,"Random brak normalizcji and Kolmogorov brak normalizcji")
-    wilcoxon_for_arrays(all_scores[8],all_scores[10] ,"Pearson brak normalizcji and Kolmogorov brak normalizcji")
-    wilcoxon_for_arrays(all_scores[2],all_scores[4] ,"Sequential Feature Selector brak normalizcji and Wraper brak normalizcji")
+    start = time.time()
+    calculate_and_plot_feature_selection_score(input, helper.PCA_test, "PCA test")
+    end = time.time()
+    print("PCA: ",end - start)
+
+    start = time.time()
+    calculate_and_plot_feature_selection_score(input, helper.pearson_test, "Pearson test")
+    end = time.time()
+    print("Pearson: ",end - start)
+    
+    start = time.time()
+    calculate_and_plot_feature_selection_score(input, helper.kolmogorov_test, "test Kołmogorowa-Smirnowa")
+    end = time.time()
+    print("Kolmogorov: ",end - start)
+# 
+    print("brak normalizacji")
+    wilcoxon_for_arrays(all_scores[0],all_scores[2] ,"Random | SFS")
+    wilcoxon_for_arrays(all_scores[0],all_scores[4] ,"Random | Wraper")
+    wilcoxon_for_arrays(all_scores[0],all_scores[6] ,"Random | PCA")
+    wilcoxon_for_arrays(all_scores[0],all_scores[8] ,"Random | Pearson")
+    wilcoxon_for_arrays(all_scores[0],all_scores[10],"Random | Kołmogorowa")
+    wilcoxon_for_arrays(all_scores[8],all_scores[2] ,"Pearson | SFS")
+    wilcoxon_for_arrays(all_scores[8],all_scores[4] ,"Pearson | Wraper")
+    wilcoxon_for_arrays(all_scores[8],all_scores[6] ,"Pearson | PCA")
+    wilcoxon_for_arrays(all_scores[8],all_scores[10],"Pearson | Kołmogorowa")
+    wilcoxon_for_arrays(all_scores[2],all_scores[4] ,"SFS | Wraper")
+    wilcoxon_for_arrays(all_scores[2],all_scores[6], "SFS | PCA")
+    wilcoxon_for_arrays(all_scores[2],all_scores[10],"SFS | Kołmogorowa")
+    wilcoxon_for_arrays(all_scores[4],all_scores[6], "Wraper | PCA")
+    wilcoxon_for_arrays(all_scores[4],all_scores[10],"Wraper | Kołmogorowa")
+    wilcoxon_for_arrays(all_scores[6],all_scores[10],"PCA | Kołmogorowa")
         
-    wilcoxon_for_arrays(all_scores[1],all_scores[3] ,"Random normalizcia and Sequential Feature Selector normalizcia")
-    wilcoxon_for_arrays(all_scores[1],all_scores[5] ,"Random normalizcia and Wraper normalizcia")
-    wilcoxon_for_arrays(all_scores[1],all_scores[7] ,"Random normalizcia and PCA normalizcia")
-    wilcoxon_for_arrays(all_scores[1],all_scores[9] ,"Random normalizcia and Pearson normalizcia")
-    wilcoxon_for_arrays(all_scores[1],all_scores[11] ,"Random normalizcia and Kolmogorov normalizcia")
-    wilcoxon_for_arrays(all_scores[9],all_scores[11] ,"Pearson normalizcia and Kolmogorov normalizcia")
-    wilcoxon_for_arrays(all_scores[3],all_scores[5] ,"Sequential Feature Selector normalizcia and Wraper normalizcia")
+    print("normalizacja")
+    wilcoxon_for_arrays(all_scores[1],all_scores[3] ,"Random | SFS")
+    wilcoxon_for_arrays(all_scores[1],all_scores[5] ,"Random | Wraper")
+    wilcoxon_for_arrays(all_scores[1],all_scores[7] ,"Random | PCA")
+    wilcoxon_for_arrays(all_scores[1],all_scores[9] ,"Random | Pearson")
+    wilcoxon_for_arrays(all_scores[1],all_scores[11],"Random | Kołmogorowa")
+    wilcoxon_for_arrays(all_scores[9],all_scores[3] ,"Pearson | SFS")
+    wilcoxon_for_arrays(all_scores[9],all_scores[5] ,"Pearson | Wraper")
+    wilcoxon_for_arrays(all_scores[9],all_scores[7] ,"Pearson | PCA")
+    wilcoxon_for_arrays(all_scores[9],all_scores[11],"Pearson | Kołmogorowa")
+    wilcoxon_for_arrays(all_scores[3],all_scores[5] ,"SFS | Wraper")
+    wilcoxon_for_arrays(all_scores[3],all_scores[7], "SFS | PCA")
+    wilcoxon_for_arrays(all_scores[3],all_scores[11],"SFS | Kołmogorowa")
+    wilcoxon_for_arrays(all_scores[5],all_scores[7], "Wraper | PCA")
+    wilcoxon_for_arrays(all_scores[5],all_scores[11],"Wraper | Kołmogorowa")
+    wilcoxon_for_arrays(all_scores[7],all_scores[11],"PCA | Kołmogorowa")
+
     plt.show()
 
 def wilcoxon_for_arrays(array_a,array_b,string) :
-    print("wilskon test for "+string)
+    print(string)
     a=[]
     b=[]
     for i in range(len(features)):
@@ -48,7 +99,7 @@ def wilcoxon_for_arrays(array_a,array_b,string) :
 
 def calculate_and_plot_feature_selection_score(input, selection, name):
 
-    outputs = helper.input_normalization(input)
+    outputs = helper.input_normalization(input, a, count)
     fig = plt.figure()
     labels = ["brak normalizacji","normalizacja"]
     i=0
@@ -67,11 +118,11 @@ def calculate_and_plot_feature_selection_score(input, selection, name):
         plt.plot(features, final_2, label=labels[i])
         i+=1
 
-    plt.title(name+ " feature for knn 5 neighbors")
+    plt.title(name+ " dla algorytmu 5-najbliszych sasiadow")
     plt.legend()
     ax = fig.gca()
-    plt.xlabel("Number of features")
-    plt.ylabel("Accuracy")
+    plt.xlabel("Liczba Cech")
+    plt.ylabel("Dokladnosc")
     ax.set_xticks(features)
     ax.set_yticks(np.arange(0, 1., 0.1))
     plt.grid()
